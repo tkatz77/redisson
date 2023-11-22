@@ -129,10 +129,16 @@ public class RedissonSession extends StandardSession {
             if (!loaded) {
                 synchronized (this) {
                     if (!loaded) {
-                        Map<String, Object> storedAttrs = map.readAllMap();
-                        
-                        load(storedAttrs);
-                        loaded = true;
+                        try {
+                            Map<String, Object> storedAttrs = map.readAllMap();
+
+                            load(storedAttrs);
+                            loaded = true;
+                        } catch (Exception e) {
+                            delete();
+                            super.expire();
+                            return null;
+                        }
                     }
                 }
             }
