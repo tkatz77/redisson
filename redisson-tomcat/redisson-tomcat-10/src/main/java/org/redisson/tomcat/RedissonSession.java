@@ -16,6 +16,8 @@
 package org.redisson.tomcat;
 
 import org.apache.catalina.session.StandardSession;
+import org.apache.juli.logging.Log;
+import org.apache.juli.logging.LogFactory;
 import org.redisson.api.RMap;
 import org.redisson.api.RSet;
 import org.redisson.api.RTopic;
@@ -31,6 +33,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
 
 /**
  * Redisson Session object for Apache Tomcat
@@ -73,6 +76,8 @@ public class RedissonSession extends StandardSession {
 
     private final boolean broadcastSessionEvents;
     private final boolean broadcastSessionUpdates;
+
+    private final Log log = LogFactory.getLog(RedissonSession.class);
 
     public RedissonSession(RedissonSessionManager manager, ReadMode readMode, UpdateMode updateMode, boolean broadcastSessionEvents, boolean broadcastSessionUpdates) {
         super(manager);
@@ -135,6 +140,7 @@ public class RedissonSession extends StandardSession {
                             load(storedAttrs);
                             loaded = true;
                         } catch (Exception e) {
+                            log.warn("Unable to load session map", e);
                             delete();
                             super.expire();
                             return null;
